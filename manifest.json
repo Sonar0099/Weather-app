@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "name": "iWeather Live",
   "short_name": "iWeather",
@@ -14,21 +13,4 @@
       "purpose": "any"
     }
   ]
-=======
-{
-  "name": "iWeather Live",
-  "short_name": "iWeather",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#007bff",
-  "icons": [
-    {
-      "src": "logo.png",
-      "sizes": "512x512", 
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ]
->>>>>>> 8809d0bc1b6ad2305e1d6d36299fbeeaade10e8d
 }

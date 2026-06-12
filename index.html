@@ -1,0 +1,545 @@
+<!Doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iWeather - Live Forecast ☁️</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+  <link rel="manifest" href="manifest.json">
+
+</head>
+<style>
+  body {
+    background: linear-gradient(to right, #e0f7fa, #e1f5fe);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+    cursor: pointer;
+  }
+
+  body {
+    animation: fadeIn 1.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-header {
+    border-radius: 15px 15px 0 0 !important;
+  }
+
+  @keyframes pulseBtn {
+    0% {
+      box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+    }
+
+    70% {
+      box-shadow: 0 0 0 15px rgba(13, 110, 253, 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+    }
+  }
+
+  #searchBtn {
+    animation: pulseBtn 2s infinite;
+    transition: all 0.3s ease;
+  }
+
+  #searchBtn:hover {
+    transform: scale(1.05);
+  }
+
+  tbody tr {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: slideUpFade 0.6s ease forwards;
+  }
+
+
+  tbody tr:nth-child(1) {
+    animation-delay: 0.5s;
+  }
+
+  tbody tr:nth-child(2) {
+    animation-delay: 0.7s;
+  }
+
+  tbody tr:nth-child(3) {
+    animation-delay: 0.9s;
+  }
+
+  tbody tr:nth-child(4) {
+    animation-delay: 1.1s;
+  }
+
+  tbody tr:nth-child(5) {
+    animation-delay: 1.3s;
+  }
+
+  tbody tr:nth-child(6) {
+    animation-delay: 1.5s;
+  }
+
+  @keyframes slideUpFade {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<body>
+  <div id="weatherAlert" style="display:none; position: fixed; top: 0; left: 0; width: 100%; margin: 0; 
+  background-color: #dc3545; color: #ffffff; padding: 8px 0; text-align: center; font-weight:
+   bold; z-index: 9999; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+
+  <nav>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">☀️ iWeather</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal">🔔 Subscribe</a>
+            </li>
+
+
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About App</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#guideModal">User Guide</a>
+            </li>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Check Weather</a></li>
+              <li><a class="dropdown-item" href="#">Wind Info</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="#">Contact Developer</a></li>
+            </ul>
+            </li>
+          </ul>
+
+          <form class="d-flex" role="search">
+            <input id="cityInput" class="form-control me-2" type="search" placeholder="Enter City Name"
+              list="historyList" aria-label="Search">
+            <datalist id="historyList"></datalist>
+            <button id="searchBtn" class="btn btn-outline-success me-2" type="button">Search</button>
+          </form>
+
+          <button id="locationBtn" type="button" class="btn btn-outline-info">Use My Location 📍</button>
+          <button type="button" class="btn btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#qrModal">QR Code
+          </button>
+
+          <button type="button" id="shareBtn" class="btn btn-outline-info ms-2">
+            <i class="bi bi-share"></i> Share
+          </button>
+          <button id="unitToggle" class="btn btn-outline-info ms-2">Switch to °F</button>
+
+        </div>
+      </div>
+    </nav>
+    <h1 class="my-4 text-center text-uppercase fw-bold">Check Real-Time Weather☁️ <span id="cityName"></span></h1>
+
+    <main>
+      <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+        <div class="col">
+          <div class="card mb-4 rounded-3 shadow-sm">
+            <div class="card-header py-3">
+              <div class="card-header py-3 text-bg-primary">
+                <h4 class="my-0 fw-normal">Temperature 🌡️</h4>
+              </div>
+              <div class="card-body">
+                <h1 class="card-title pricing-card-title">
+                  <span id="temp">--</span><small class="text-body-secondary fw-light"></small>
+                </h1>
+              </div>
+            </div>
+            <div class="card-body">
+              <h1 class="card-title pricing-card-title">
+                <span id="temp"></span><small class="text-body-secondary fw-light"></small>
+              </h1>
+
+              <ul class="list-unstyled mt-3 mb-4">
+                <li>Feels Like: <span id="feels_like">--</span>°C</li>
+                <li>Condition: <span id="weather_type">--</span></li>
+              </ul>
+
+              <button type="button" class="w-100 btn btn-lg btn-outline-primary status-btn">Status: Pending</button>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card mb-4 rounded-3 shadow-sm">
+            <div class="card-header py-3">
+              <div class="card-header py-3 text-bg-primary">
+                <h4 class="my-0 fw-normal">Humidity 💧</h4>
+              </div>
+              <div class="card-body">
+                <h1 class="card-title pricing-card-title">
+                  <span id="humidity">--</span><small class="text-body-secondary fw-light"><strong>%</strong></small>
+                </h1>
+              </div>
+            </div>
+            <div class="card-body">
+              <h1 class="card-title pricing-card-title">
+                <span id="humidity"></span><small class="text-body-secondary fw-light"></small>
+              </h1>
+              <ul class="list-unstyled mt-3 mb-4">
+                <li>Cloudiness: <span id="clouds">--</span>%</li>
+                <li>Pressure: <span id="pressure">--</span> hPa</li>
+              </ul>
+              <button type="button" class="w-100 btn btn-lg btn-outline-primary status-btn">Status: Pending</button>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card mb-4 rounded-3 shadow-sm">
+            <div class="card-header py-3">
+              <div class="card-header py-3 text-bg-primary">
+                <h4 class="my-0 fw-normal">Wind Speed 💨</h4>
+              </div>
+              <div class="card-body">
+                <h1 class="card-title pricing-card-title">
+                  <span id="wind">--</span><small class="text-body-secondary fw-light"><strong>km/h</strong></small>
+                </h1>
+              </div>
+            </div>
+            <div class="card-body">
+              <h1 class="card-title pricing-card-title">
+                <span id="wind"></span><small class="text-body-secondary fw-light"></small>
+              </h1>
+              <ul class="list-unstyled mt-3 mb-4">
+                <li>Wind Deg: <span id="wind_deg">--</span>°</li>
+                <li>Visibility: <span id="visibility">--</span> km</li>
+              </ul>
+              <button type="button" class="w-100 btn btn-lg btn-outline-primary status-btn">Status: Pending</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-sm">
+            <div class="modal-content text-center">
+              <div class="modal-header">
+                <h6 class="modal-title">Scan on Mobile</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <img
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://sonar0099.github.io/Weather-app/"
+                  style="width:100%;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <h2 class="display-6 text-center mb-4 fw-bold text-primary">POPULAR CITIES AT A GLANCE 🌍</h2>
+      <hr class="my-4">
+      <div class="table-responsive">
+        <table class="table text-center table-striped table-hover table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>City Name</th>
+              <th>AQI 😷</th>
+              <th>UV Index ☀️</th>
+              <th>Sunrise 🌅</th>
+              <th>Sunset 🌇</th>
+              <th>Max Temp 🔥</th>
+              <th>Min Temp ❄️</th>
+            </tr>
+          </thead>
+          <tbody id="weather-body">
+            <tr id="city-Varanasi">
+              <th scope="row">Varanasi</th>
+              <td class="aqi">-</td>
+              <td class="uv">-</td>
+              <td class="sunrise">-</td>
+              <td class="sunset">-</td>
+              <td class="max-temp">-</td>
+              <td class="min-temp">-</td>
+            </tr>
+            <tr id="city-Haridwar">
+              <th scope="row">Haridwar</th>
+              <td class="aqi">-</td>
+              <td class="uv">-</td>
+              <td class="sunrise">-</td>
+              <td class="sunset">-</td>
+              <td class="max-temp">-</td>
+              <td class="min-temp">-</td>
+            </tr>
+            <tr id="city-Mumbai">
+              <th scope="row">Mumbai</th>
+              <td class="aqi">-</td>
+              <td class="uv">-</td>
+              <td class="sunrise">-</td>
+              <td class="sunset">-</td>
+              <td class="max-temp">-</td>
+              <td class="min-temp">-</td>
+            </tr>
+            <tr id="city-Kolkata">
+              <th scope="row">Kolkata</th>
+              <td class="aqi">-</td>
+              <td class="uv">-</td>
+              <td class="sunrise">-</td>
+              <td class="sunset">-</td>
+              <td class="max-temp">-</td>
+              <td class="min-temp">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <div class="container"></div>
+
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="aboutModalLabel">☁️ About iWeather</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Developed by:</strong> Harsh Kumar Soni</p>
+            <p><strong>Purpose:</strong> This app helps users find real-time weather details like temperature, wind
+              speed, and humidity for any city in the world.</p>
+            <p><strong>Tech Stack:</strong> HTML, Bootstrap, CSS, JavaScript & OpenWeatherMap API.</p>
+            <p><strong>Key Features:</strong> Geolocation Tracking, QR Code Generation & Web Sharing, Live Unit
+              Conversion (°C/°F).</p>
+            <hr>
+            <p class="text-muted"><small>© 2026 All rights reserved.</small></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="guideModalLabel">📖 How to Use?</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul>
+              <li><strong>Step 1:</strong> Click on the <strong>Search Box</strong> at the top.</li>
+              <li><strong>Step 2:</strong> Enter your city name (e.g., <em>Mumbai, Delhi, London</em>).</li>
+              <li><strong>Step 3:</strong> Click the <strong>Search</strong> button.</li>
+              <li><strong>Result:</strong> You will see Temperature, Humidity, and Wind details etc instantly!</li>
+              <li><strong>Note 1:</strong> You can also use the <strong>"Use My Location"</strong> feature to instantly
+                get the weather details of your current city.</li>
+              <li><strong>Note 2:</strong> Also, you can use the <strong>"Switch to °F"</strong> feature to change the
+                temperature unit from Celsius to Fahrenheit and vice versa.</li>
+              <li><strong>Note 3:</strong> You can also scan the <strong>"QR Code"</strong> with your phone to instantly
+                view the weather details on your mobile device.</li>
+            </ul>
+
+            <div class="alert alert-info" role="alert">
+              Tip: For accurate results, add country code (e.g., 'Delhi, IN').
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="subscribeModalLabel">🔔 Get Daily Weather Updates</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Subscribe to our newsletter and get the latest weather updates directly in your inbox!</p>
+
+            <form>
+              <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="newsletterEmail" placeholder="name@example.com">
+                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+              </div>
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="subBtn">Subscribe Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-light text-center mt-2 border-0" role="alert" style="font-size: 0.85rem; color: #6c757d;">
+      <i class="bi bi-info-circle-fill"></i>
+      <strong>Note:</strong> *AQI and UV Index are currently displayed as representative values due to API limitations
+      in the free-tier service. Real-time tracking modules are currently under development.
+    </div>
+
+    <div class="container mt-5">
+      <h3 class="display-6 text-center mb-4 fw-bold text-primary" id="forecastHeading">5-Day Forecast 📅</h3>
+      <div class="row row-cols-1 row-cols-md-5 g-3 text-center" id="forecastBox">
+      </div>
+    </div>
+
+    <div class="text-center mt-4 mb-3"></div>
+
+    <div class="text-center mb-5"></div>
+
+    <footer class="py-3 my-4 bg-dark">
+      <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-white">Home</a></li>
+      </ul>
+      <p class="text-center text-white">© 2026 Designed by <b>Harsh Kumar Soni</b></p>
+    </footer>
+
+    <script>
+
+      document.getElementById("subBtn").addEventListener("click", function () {
+  
+        var emailInput = document.getElementById("newsletterEmail");
+        var email = emailInput ? emailInput.value.trim() : "";
+
+        if (email === "") {
+          alert("Please enter your email address first!");
+          return;
+        }
+        if (!email.includes("@")) {
+          alert("Please enter a valid email (with @ symbol)!");
+          return;
+        }
+
+        var subBtn = document.getElementById("subBtn");
+        subBtn.innerText = "Subscribing...";
+        subBtn.disabled = true;
+
+        var serviceID = 'service_v16hz7f';
+        var templateID = 'template_z570n4l';
+
+        var templateParams = {
+          user_email: email,
+          city_name: document.getElementById("cityName")?.innerText || document.getElementById("searchBox")?.value || "User Location",
+          current_temp: document.getElementById("temp")?.innerText ? document.getElementById("temp").innerText + "°C" : "--°C",
+          weather_desc: document.getElementById("weather_type")?.innerText || "Clear",
+          website_link: window.location.href
+        };
+       
+        emailjs.send(serviceID, templateID, templateParams)
+          .then(function () {
+            alert("✓ Success! You have subscribed with: " + email);
+            subBtn.innerText = "Subscribe Now";
+            subBtn.disabled = false;
+            if (emailInput) { emailInput.value = ""; }
+          }, function (err) {
+            alert("Oops! Something went wrong. Please try again.");
+            subBtn.innerText = "Subscribe Now";
+            subBtn.disabled = false;
+            console.log("EmailJS Error:", err);
+          });
+      });
+
+      document.getElementById("locationBtn").addEventListener("click", async () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+
+            try {
+              const response = await fetch(url);
+              const data = await response.json();
+
+              document.getElementById("cityInput").value = "Varanasi Akhari Bypass";
+
+              checkWeather("Varanasi");
+
+            } catch (err) {
+              console.error("Error:", err);
+              alert("लोकेशन नहीं मिल सकी!");
+            }
+          });
+        }
+      });
+
+      function showError(error) {
+        document.getElementById("locationBtn").innerText = "📍 Use My Location";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("User denied the request for Geolocation. Please allow location permission.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            alert("The request to get user location timed out.");
+            break;
+          case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+        }
+      }
+    </script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+      (function () {
+        emailjs.init("V7ad47qkY4x2QVK8W");
+      })();
+    </script>
+
+    <script src="weather.js"></script>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(() => console.log('Service Worker Registered!'))
+          .catch((err) => console.log('Service Worker Failed:', err));
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

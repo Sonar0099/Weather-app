@@ -32,13 +32,11 @@ async function checkWeather(city) {
       document.getElementById("wind_deg").innerHTML = data.wind.deg;
       document.getElementById("visibility").innerHTML = data.visibility / 1000;
 
-      document.getElementById("feels_like").innerHTML = Math.round(
-        data.main.feels_like,
-      );
+      document.getElementById("feels_like").innerHTML = Math.round(data.main.feels_like,);
       document.getElementById("weather_type").innerHTML = data.weather[0].main;
       document.getElementById("cityName").innerHTML = data.name;
       currentTemp = data.main.temp;
-      document.getElementById("temp").innerHTML = Math.round(data.main.temp);
+      document.getElementById("temp").innerHTML = Math.round(data.main.temp) + "°C";
 
       saveToHistory(data.name);
       document.getElementById("humidity").innerHTML = data.main.humidity;
@@ -183,12 +181,12 @@ document.getElementById("unitToggle").addEventListener("click", () => {
   if (isCelsius) {
     
     let fahrenheit = (currentTemp * 9) / 5 + 32;
-    tempElement.innerHTML = Math.round(fahrenheit);
+    tempElement.innerHTML = Math.round(fahrenheit) + "°F";
     unitButton.innerHTML = "Switch to °C";
     isCelsius = false;
   } else {
    
-    tempElement.innerHTML = Math.round(currentTemp);
+    tempElement.innerHTML = Math.round(currentTemp) + "°C";
     unitButton.innerHTML = "Switch to °F";
     isCelsius = true;
   }
